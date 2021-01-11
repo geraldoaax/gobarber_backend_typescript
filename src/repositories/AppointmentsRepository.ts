@@ -1,4 +1,4 @@
-import Appointment from '../../src/models/Appointment' // criar as interfaces como classes em models
+import Appointment from '../models/Appointment' // criar as interfaces como classes em models
 import { isEqual } from 'date-fns'; //trabalhar com datas
 
 //Data Transfer Object
@@ -7,7 +7,7 @@ interface CreateAppointmentDTO {
   date: Date;
 }
 
-class AppointmentRepository {
+class AppointmentsRepository {
   private appointments: Appointment[];
   constructor() {
     this.appointments = []
@@ -26,7 +26,7 @@ class AppointmentRepository {
 
   //estrutura de parametos nomeados
   public create({ provider, date }: CreateAppointmentDTO): Appointment { //Colocar o tipo da saída aqui. A
-    const appointment = new Appointment(provider, date);
+    const appointment = new Appointment({ provider, date });
 
     this.appointments.push(appointment);
 
@@ -34,4 +34,4 @@ class AppointmentRepository {
   }
 }
 
-export default AppointmentRepository;
+export default AppointmentsRepository;

@@ -1,41 +1,40 @@
-import { request, response, Router } from 'express'
-import { startOfHour, parseISO } from 'date-fns'; //trabalhar com datas
-import AppointmentRepository from '../repositories/AppointmentRepository'
+import { Router } from 'express'
+import { parseISO } from 'date-fns'; //trabalhar com datas
 
-const appointmentesRouter = Router();
-//declaracao da variavel - typescript
-const appointmentRepository = new AppointmentRepository();
+import AppointmentsRepository from '../repositories/AppointmentsRepository'
+import CreateAppointmentService from '../services/CreateAppointmentService';
+
+const appointmentsRouter = Router();
+const appointmentsRepository = new AppointmentsRepository();
 
 //Rota: receber a requisição, chamar outro arquivo e devolver a resposta
 
-appointmentesRouter.get('/', (request, response) => {
-  const appointments = appointmentRepository.all();
+appointmentsRouter.get('/', (request, response) => {
+  const appointments = appointmentsRepository.all();
 
   return response.json(appointments);
 });
 
-appointmentesRouter.post('/', (request, response) => {
-  const { provider, date } = request.body;
-  //o que vem dentro do request.body não precisa definir o tipo
+appointmentsRouter.post('/', (request, response) => {
+  try {
+    const { provider, date } = request.body;
+    //o que vem dentro do request.body não precisa definir o tipo
 
-  const parsedDate = parseISO(date);
-  const appointmentDate = startOfHour(parsedDate); //regra de negocio.. grava de hora em hora
+    const parsedDate = parseISO(date);
 
+    const CreateAppointment = new CreateAppointmentService(
+      appointmentsRepository,
+    );
 
-  const findAppointmentInSameDate = appointmentRepository.findByDate(parsedDate);
+    const appointment = CreateAppointment.execute({
+      date: parsedDate,
+      provider
+    });
 
-  if (findAppointmentInSameDate) {
-    return response
-      .status(400)
-      .json({ message: 'This appointment is alredy booked!' });
+    return response.json(appointment);
+  } catch (err) {
+    return response.status(400).json({ error: err.message })
   }
-
-  const appointment = appointmentRepository.create({
-    provider,
-    date: appointmentDate,
-  })
-
-  return response.json(appointment);
 });
 
-export default appointmentesRouter;
+export default appointmentsRouter;
