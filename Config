@@ -1,0 +1,6 @@
+-> separar as rotas por objetos
+-> Criar os models para tipar as variáveis
+- > Conceito de Repositório //persinsência  com banco <- Reposittório ->  e rota
+// Pode ter dentro um método find, ou um create por exemplo
+// um repositório por model -- Pode ler, criar, deteletar e atualizar...
+Apenas o repositorio pode trabalhar sobre os dados do objeto

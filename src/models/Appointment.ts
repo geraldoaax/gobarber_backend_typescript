@@ -6,9 +6,9 @@ class Appointment {
 
   provider: string;
 
-  date: Date
-
-  constructor(provider: string, date: Date) {
+  date: Date;
+  //omit passa as variaves mas exclui um.. no caso o ID
+  constructor({ provider, date }: Omit<Appointment, 'id'>) {
     this.id = uuid();
     this.provider = provider;
     this.date = date;

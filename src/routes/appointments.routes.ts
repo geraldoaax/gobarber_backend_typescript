@@ -1,20 +1,28 @@
 import { request, response, Router } from 'express'
-import { uuid } from 'uuidv4';
-import { startOfHour, parseISO, isEqual, parse } from 'date-fns';
-import Appointment from '../../src/models/Appointment'
+import { startOfHour, parseISO } from 'date-fns'; //trabalhar com datas
+import AppointmentRepository from '../repositories/AppointmentRepository'
 
 const appointmentesRouter = Router();
 //declaracao da variavel - typescript
-const appointments: Appointment[] = [] //seta que a colecao appointments e do tipo
+const appointmentRepository = new AppointmentRepository();
+
+//Rota: receber a requisição, chamar outro arquivo e devolver a resposta
+
+appointmentesRouter.get('/', (request, response) => {
+  const appointments = appointmentRepository.all();
+
+  return response.json(appointments);
+});
 
 appointmentesRouter.post('/', (request, response) => {
   const { provider, date } = request.body;
+  //o que vem dentro do request.body não precisa definir o tipo
 
-  const parsedDate = startOfHour(parseISO(date));
+  const parsedDate = parseISO(date);
+  const appointmentDate = startOfHour(parsedDate); //regra de negocio.. grava de hora em hora
 
-  const findAppointmentInSameDate = appointments.find(appointment =>
-    isEqual(parsedDate, appointment.date),
-  );
+
+  const findAppointmentInSameDate = appointmentRepository.findByDate(parsedDate);
 
   if (findAppointmentInSameDate) {
     return response
@@ -22,9 +30,10 @@ appointmentesRouter.post('/', (request, response) => {
       .json({ message: 'This appointment is alredy booked!' });
   }
 
-  const appointment = new Appointment(provider, date);
-
-  appointments.push(appointment);
+  const appointment = appointmentRepository.create({
+    provider,
+    date: appointmentDate,
+  })
 
   return response.json(appointment);
 });
